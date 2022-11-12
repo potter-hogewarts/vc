@@ -1,0 +1,6 @@
+discord.py
+asyncio
+ffmpeg-python
+PyNaCl
+datetime
+git+https://github.com/Rapptz/discord.py
