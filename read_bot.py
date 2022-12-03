@@ -124,8 +124,6 @@ async def msg(message):
                 if message.guild.voice_client:
                     print('#message.content:'+ message.content)
                     creat_WAV(message.content)
-                    #source = discord.FFmpegPCMAudio(executable="C:\\open_jtalk\\bin\\ffmpeg-N-102572-gf27e3ccf06-win64-gpl-shared\\bin\\ffmpeg.exe",source="output.wav")
-                    #source = discord.FFmpegPCMAudio(source="output.wav",executable="C:\\open_jtalk\\bin\\ffmpeg-N-102572-gf27e3ccf06-win64-gpl-shared\\bin\\ffmpeg.exe")
                     #debian(heroku)
                     source = discord.FFmpegPCMAudio(source="output.wav",executable="./bin/ffmpeg")
                     #windows10
