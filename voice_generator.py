@@ -1,11 +1,36 @@
 import subprocess
+import copy
 import re
+import json
+import mojimoji
 
-#m = 'C:/open_jtalk/bin/mei/mei_happy.htsvoice'
 # ************************************************
 # remove_custom_emoji
 # 絵文字IDは読み上げない
 # ************************************************
+
+
+def mod_pitch(fm):
+    with open('./setting.json','r') as f:
+         data = json.load(f)
+
+    data['fm']=fm
+
+    with open('./setting.json','w') as f:
+         json.dump(data, f)
+
+    return fm
+
+def mod_speed(r):
+    with open('./setting.json','r') as f:
+         data = json.load(f)
+
+    data["r"]=str(r)
+
+    with open('./setting.json','w') as f:
+         json.dump(data,f,ensure_ascii=False)
+
+    return r
 
 def remove_custom_emoji(text):
     
@@ -60,6 +85,12 @@ def user_custam(text):
 
     while line:
         pattern = line.strip().split(',')
+
+        try:
+            text = mojimoji.han_to_zen(text)
+        except:
+            pass
+
         if pattern[0] in text:
             text = text.replace(pattern[0], pattern[1])
             print('置換後のtext:'+text)
@@ -77,6 +108,8 @@ def user_custam(text):
 # 書き込みファイル：input.txt、output.wav
 # ************************************************
 def creat_WAV(inputText):
+    global r
+    global fm
     # message.contentをテキストファイルに書き込み
 
     #辞書のパス
@@ -85,9 +118,21 @@ def creat_WAV(inputText):
     #debian(heroku)
     x = './openjtalk/dic'
 
+    #m = 'C:/open_jtalk/bin/takumi/takumi_normal.htsvoice'
     m = 'takumi_normal.htsvoice'
+    #m = 'C:/open_jtalk/bin/mei/mei_happy.htsvoice'
+    #m = 'C:/open_jtalk/bin/mei/mei_angry.htsvoice'
+    #m = 'C:/open_jtalk/bin/mei/mei_normal.htsvoice'
+    #m = 'C:/open_jtalk/bin/mei/mei_sad.htsvoice'
+    #m = 'C:/open_jtalk/bin/mei/mei_bashful.htsvoice'
+    #m = 'C:/open_jtalk/bin/nitech_jp_atr503_m001.htsvoice'
+    #m = 'C:/open_jtalk/bin/mei/ruu.htsvoice'
+    #m = 'C:/open_jtalk/bin/piyo/piyochan.htsvoice'
+    #m = 'C:/open_jtalk/bin/himeru/himeru.htsvoice'
+    #m = 'C:/open_jtalk/bin/ruu/ruu.htsvoice'
 
-
+    inputText = inputText.replace('\n','')
+    
     inputText = remove_custom_emoji(inputText)   # 絵文字IDは読み上げない
     inputText = remove_command(inputText)   # コマンドは読み上げない
     inputText = url_shouryaku(inputText)   # URLなら省略
@@ -103,16 +148,21 @@ def creat_WAV(inputText):
     #windows10
     # command = 'open_jtalk -x {x} -m {m} -r {r} -ow {ow} {input_file}'
     #Linux
-    command = './open_jtalk -x {x} -m {m} -r {r} -ow {ow} {input_file}'
+    command = './open_jtalk -x {x} -m {m} -r {r} -ow {ow} -fm {fm} {input_file}'
 
     #発声のスピード
     #r = '2.0'
-    r = '1.2'
+    #r = '1.2'
+    with open('./setting.json','r') as f:
+         data=json.load(f)
+    
+    r = data['r']
+    fm = data['fm']
 
     #出力ファイル名　and　Path
     ow = 'output.wav'
+    args= {'x':x, 'm':m, 'r':r, 'ow':ow , 'fm':fm ,'input_file':input_file}
 
-    args= {'x':x, 'm':m, 'r':r, 'ow':ow, 'input_file':input_file}
 
     cmd= command.format(**args)
     print(cmd)
@@ -121,7 +171,6 @@ def creat_WAV(inputText):
     #subprocess.run(cmd)
     
     #Debian(heroku)
-    subprocess.run('chmod 777 open_jtalk'.split())
+    #subprocess.run('chmod 777 open_jtalk'.split())
     subprocess.run(cmd.split())
     return True
-
